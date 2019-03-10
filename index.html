@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>To do list</title>
+</head>
+<body>
+    
+    <h1>Your to do list</h1>
+
+    <form>
+        <h2>Title?</h2>
+        <label for="title">Title</label>
+        <input id="title" type="text" name="title" required>
+
+        <h3>Date?</h3>
+
+        <label for="date">Date</label>
+        <input id="date" type="date" name="date" required value="date">
+
+        <h3>Importance</h3>
+
+        <label for="high">High</label>
+        <input id="high" type="radio" name="importance" required value="High">
+
+        <label for="middle">Middle</label>
+        <input id="middle" type="radio" name="importance" required value="Middle">
+
+        <label for="low">Low</label>
+        <input id="low" type="radio" name="importance" required value="Low">
+
+        <h3>Description?</h3>
+
+        <textarea id="description" placeholder="Description"></textarea>
+        <br>
+
+        <input type="submit" name="submit">
+
+    </form>
+
+
+    <div class="dataContainer"></div>
+
+    <template class="dataTemplate">
+
+        <div class="todoContainer">
+            <p data-title></p>
+            <p data-date></p>
+            <p data-importance></p>
+            <p data-description></p>
+            <button> Delete Element </button>
+        </div>
+
+    </template>
+
+    <script>
+    "use strict";
+
+    let dest = document.querySelector(".dataContainer");
+    
+    document.addEventListener("DOMContentLoaded", get);
+
+    function post(newTodo) {
+            fetch("https://todolist-fe2a.restdb.io/rest/todolist  ", {
+            method: "post",
+            headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            "x-apikey": "5c854b56cac6621685acbd7b",
+            "cache-control": "no-cache"
+        },
+        body:JSON.stringify(newTodo),
+        })
+        .then(e => e.json())
+        .then(e => {
+            form.elements.submit.disabled = false;
+            get();
+            });
+        }
+
+    function get() {
+        fetch("https://todolist-fe2a.restdb.io/rest/todolist", {
+            method: "get",
+            headers: {
+                "Content-Type": "application/json; charset=utf-8",
+                "x-apikey": "5c854b56cac6621685acbd7b",
+                "cache-control": "no-cache"
+            }
+        })
+        .then(e => e.json())
+        .then(e => {
+            console.table(e);
+            showJson(e);
+        })
+    }
+
+    function deleteSubmit(id) {
+        fetch("https://todolist-fe2a.restdb.io/rest/todolist/" + id, {
+            method: "delete",
+            headers: {
+                "Content-Type": "application/json; charset=utf-8",
+                "x-apikey": "5c854b56cac6621685acbd7b",
+                "cache-control": "no-cache"
+            }
+        })
+        .then(e => e.json())
+        .then(e => {
+
+        })
+    }
+
+    function showJson(data) {
+        let myTemplate = document.querySelector(".dataTemplate");
+        dest.textContent = "";
+
+        data.forEach( todo => {
+            let clone = myTemplate.cloneNode(true).content;
+
+            clone.querySelector("[data-title]").textContent = todo.title;
+            clone.querySelector("[data-date]").textContent = todo.date;
+            clone.querySelector("[data-importance]").textContent = todo.importance;
+            clone.querySelector("[data-description]").textContent = todo.description;
+            
+
+            clone.querySelector("button").addEventListener("click", (e) => {
+            e.target.parentElement.remove();
+            deleteSubmit(todo._id);
+            });
+
+            dest.appendChild(clone);
+
+        });
+
+    }
+    
+const form = document.querySelector("form");
+    form.addEventListener("submit", e => {
+        form.elements.submit.disabled = true;
+    e.preventDefault();
+    console.log("submitted");
+    const payload = {
+        title: form.elements.title.value,
+        date: form.elements.date.value,
+        importance: form.elements.importance.value,
+        description: form.elements.description.value
+    }
+    console.log(payload)
+    post(payload);
+  });
+    
+    </script>
+
+</body>
+</html>
